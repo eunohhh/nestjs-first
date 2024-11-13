@@ -33,7 +33,7 @@ export class PostsController {
     @Body('title') title: string,
     @Body('content') content: string,
   ) {
-    this.postsService.createPost({ author, title, content });
+    return this.postsService.createPost({ author, title, content });
   }
   // PUT /posts/:id
   // 해당되는 id의 포스트를 변경한다
@@ -44,7 +44,7 @@ export class PostsController {
     @Body('title') title?: string,
     @Body('content') content?: string,
   ) {
-    this.postsService.updatePost({
+    return this.postsService.updatePost({
       postId: Number(id),
       author,
       title,
@@ -55,6 +55,6 @@ export class PostsController {
   // 해당되는 id의 포스트를 삭제한다
   @Delete(':id')
   deletePost(@Param('id') id: string) {
-    this.postsService.deletePost(Number(id));
+    return this.postsService.deletePost(Number(id));
   }
 }
