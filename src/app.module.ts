@@ -12,6 +12,8 @@ import {
 } from './common/const/env-keys.const';
 import { PostsModel } from './posts/entities/posts.entity';
 import { PostsModule } from './posts/posts.module';
+import { UsersModel } from './users/entities/users.entity';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -28,9 +30,10 @@ import { PostsModule } from './posts/posts.module';
       username: process.env[ENV_DB_USERNAME_KEY],
       password: process.env[ENV_DB_PASSWORD_KEY],
       database: process.env[ENV_DB_DATABASE_KEY],
-      entities: [PostsModel],
+      entities: [PostsModel, UsersModel],
       synchronize: true,
     }),
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
