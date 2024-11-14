@@ -93,9 +93,13 @@ export class AuthService {
 
   // 토큰 검증
   verifyToken(token: string) {
-    return this.jwtService.verify(token, {
-      secret: this.configService.get(ENV_JWT_SECRET_KEY),
-    });
+    try {
+      return this.jwtService.verify(token, {
+        secret: this.configService.get(ENV_JWT_SECRET_KEY),
+      });
+    } catch {
+      throw new UnauthorizedException('토큰이 만료되었거나 잘못된 토큰입니다.');
+    }
   }
 
   // 엑세스 토큰 만료될 때마다
