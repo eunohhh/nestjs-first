@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import {
   ENV_DB_DATABASE_KEY,
   ENV_DB_HOST_KEY,
@@ -14,7 +15,6 @@ import { PostsModel } from './posts/entities/posts.entity';
 import { PostsModule } from './posts/posts.module';
 import { UsersModel } from './users/entities/users.entity';
 import { UsersModule } from './users/users.module';
-import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
