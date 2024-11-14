@@ -150,7 +150,7 @@ export class AuthService {
 
   async loginUser(user: Pick<UsersModel, 'email' | 'id'>) {
     return {
-      accssToken: this.signToken(user, false),
+      accessToken: this.signToken(user, false),
       refreshToken: this.signToken(user, true),
     };
   }
