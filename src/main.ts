@@ -14,6 +14,8 @@ async function bootstrap() {
       transformOptions: {
         enableImplicitConversion: true,
       },
+      whitelist: true, // 데코레이터 처리되지 않은 요청은 무시
+      forbidNonWhitelisted: true, // 무시는 하되 에러는 던짐
     }),
   );
   await app.listen(process.env.PORT ?? 3000);

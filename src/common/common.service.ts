@@ -6,7 +6,7 @@ import {
   FindOptionsWhere,
   Repository,
 } from 'typeorm';
-import { ENV_LOCALHOST, ENV_PROTOCOL } from './const/env-keys.const';
+import { ENV_HOST, ENV_PROTOCOL } from './const/env-keys.const';
 import { FILTER_MAPPER } from './const/filter-mapper.const';
 import { BasePaginationDto } from './dto/base-pagination.dto';
 import { BaseModel } from './entities/base.entity';
@@ -32,7 +32,19 @@ export class CommonService {
     dto: BasePaginationDto,
     repository: Repository<T>,
     overrideFindOptions: FindManyOptions<T> = {},
-  ) {}
+  ) {
+    const findOptions = this.composeFindOptions<T>(dto);
+
+    const [data, count] = await repository.findAndCount({
+      ...findOptions,
+      ...overrideFindOptions,
+    });
+
+    return {
+      data,
+      total: count,
+    };
+  }
 
   private async cursorPaginate<T extends BaseModel>(
     dto: BasePaginationDto,
@@ -47,15 +59,13 @@ export class CommonService {
       ...overrideFindOptions,
     });
 
+    const protocol = this.configService.get(ENV_PROTOCOL);
+    const host = this.configService.get(ENV_HOST);
     const lastItem =
       results.length > 0 && results.length === dto.take
         ? results[results.length - 1]
         : null;
-    const nextUrl =
-      lastItem &&
-      new URL(
-        `${this.configService.get(ENV_PROTOCOL)}://${this.configService.get(ENV_LOCALHOST)}/${path}`,
-      );
+    const nextUrl = lastItem && new URL(`${protocol}://${host}/${path}`);
 
     if (nextUrl) {
       /**
@@ -166,8 +176,11 @@ export class CommonService {
       //   } else {
       //     options[field] = FILTER_MAPPER[operator](value)
       //   }
-
-      options[field] = FILTER_MAPPER[operator](value);
+      if (operator === 'i_like') {
+        options[field] = FILTER_MAPPER[operator](`%${value}%`);
+      } else {
+        options[field] = FILTER_MAPPER[operator](value);
+      }
     }
 
     return options;

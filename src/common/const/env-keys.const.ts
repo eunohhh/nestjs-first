@@ -5,5 +5,5 @@ export const ENV_DB_PASSWORD_KEY = 'DB_PASSWORD';
 export const ENV_DB_DATABASE_KEY = 'DB_DATABASE';
 export const ENV_JWT_SECRET_KEY = 'JWT_SECRET';
 export const ENV_JWT_HASH_ROUNDS = 'JWT_HASH_ROUNDS';
-export const ENV_LOCALHOST = 'LOCALHOST';
+export const ENV_HOST = 'HOST';
 export const ENV_PROTOCOL = 'PROTOCOL';

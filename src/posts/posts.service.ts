@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ENV_LOCALHOST, ENV_PROTOCOL } from 'src/common/const/env-keys.const';
+import { ENV_HOST, ENV_PROTOCOL } from 'src/common/const/env-keys.const';
 import { FindOptionsWhere, LessThan, MoreThan, Repository } from 'typeorm';
 import { CommonService } from './../common/common.service';
 import { CreatePostDto } from './dto/create-post.dto';
@@ -39,7 +39,14 @@ export class PostsService {
     // } else {
     //   this.cursorPaginatePosts(dto);
     // }
-    return this.commonService.paginate(dto, this.postsRepository, {}, 'posts');
+    return this.commonService.paginate(
+      dto,
+      this.postsRepository,
+      {
+        relations: ['author'],
+      },
+      'posts',
+    );
   }
 
   async pagePaginatePosts(dto: PaginatePostDto) {
@@ -77,7 +84,8 @@ export class PostsService {
       },
       take: dto.take,
     });
-
+    const protocol = this.configService.get(ENV_PROTOCOL);
+    const host = this.configService.get(ENV_HOST);
     // 해당되는 포스트가 0개 이상이면
     // 마지막 포스트를 가져오고
     // 아니면 null 을 반환한다.
@@ -85,11 +93,7 @@ export class PostsService {
       posts.length > 0 && posts.length === dto.take
         ? posts[posts.length - 1]
         : null;
-    const nextUrl =
-      lastItem &&
-      new URL(
-        `${this.configService.get(ENV_PROTOCOL)}://${this.configService.get(ENV_LOCALHOST)}/posts`,
-      );
+    const nextUrl = lastItem && new URL(`${protocol}://${host}/posts`);
 
     if (nextUrl) {
       /**
