@@ -154,7 +154,7 @@ export class PostsService {
     return post;
   }
 
-  async createPost(authorId: number, postDto: CreatePostDto) {
+  async createPost(authorId: number, postDto: CreatePostDto, image?: string) {
     // create -> 저장할 객체를 생성한다
     // save -> 객체를 저장한다(create 메서드에서 생성한 객체로)
     const post = this.postsRepository.create({
@@ -162,6 +162,7 @@ export class PostsService {
         id: authorId,
       },
       ...postDto,
+      image,
       likeCount: 0,
       commentCount: 0,
     });
