@@ -6,6 +6,7 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
+  // @UseInterceptors(ClassSerializerInterceptor)
   getUsers() {
     return this.usersService.getAllUsers();
   }

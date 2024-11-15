@@ -1,5 +1,6 @@
-import { Module } from '@nestjs/common';
+import { ClassSerializerInterceptor, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { APP_INTERCEPTOR } from '@nestjs/core';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
@@ -38,6 +39,19 @@ import { UsersModule } from './users/users.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    {
+      /**
+       * class-transformer 을 사용할경우 여기에 인터셉터를 제공하면 한번으로 끝
+       * 1) APP_INTERCEPTOR
+       * 2) APP_FILTER
+       * 3) APP_GUARD
+       * 4) APP_PIPE
+       */
+      provide: APP_INTERCEPTOR,
+      useClass: ClassSerializerInterceptor,
+    },
+  ],
 })
 export class AppModule {}
