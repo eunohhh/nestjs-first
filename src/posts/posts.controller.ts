@@ -8,12 +8,14 @@ import {
   Patch,
   Post,
   Query,
+  UseFilters,
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { ImageModelType } from 'src/common/entities/image.entity';
+import { HttpExceptionFilter } from 'src/common/exception-filter/http.exception-filter';
 import { LogInterceptor } from 'src/common/interceptor/log.interceptor';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
 import { User } from 'src/users/decorators/user.decorator';
@@ -37,6 +39,7 @@ export class PostsController {
   // 모든 posts 를 다 가져온다
   @Get()
   @UseInterceptors(LogInterceptor)
+  @UseFilters(HttpExceptionFilter)
   getPosts(@Query() query: PaginatePostDto) {
     return this.postsService.paginatePosts(query);
   }
