@@ -3,19 +3,22 @@ import {
   Controller,
   Delete,
   Get,
-  InternalServerErrorException,
   Param,
   ParseIntPipe,
   Patch,
   Post,
   Query,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
+import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { ImageModelType } from 'src/common/entities/image.entity';
+import { LogInterceptor } from 'src/common/interceptor/log.interceptor';
+import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
 import { User } from 'src/users/decorators/user.decorator';
 import { UsersModel } from 'src/users/entities/users.entity';
-import { DataSource } from 'typeorm';
+import { DataSource, QueryRunner as QR } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PaginatePostDto } from './dto/paginate-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -33,6 +36,7 @@ export class PostsController {
   // GET /posts
   // 모든 posts 를 다 가져온다
   @Get()
+  @UseInterceptors(LogInterceptor)
   getPosts(@Query() query: PaginatePostDto) {
     return this.postsService.paginatePosts(query);
   }
@@ -50,54 +54,35 @@ export class PostsController {
   getPost(@Param('id', ParseIntPipe) id: number) {
     return this.postsService.getPostById(id);
   }
+
   // POST /posts
   // post를 생성한다
   // DTO - data transfer object
   @Post()
   @UseGuards(AccessTokenGuard)
+  @UseInterceptors(TransactionInterceptor)
   async postPosts(
     @User() user: UsersModel,
     @Body() body: CreatePostDto,
+    @QueryRunner() qr: QR,
     // @Body('title') title: string,
     // @Body('content') content: string,
   ) {
-    // 트랜젝션과 관련된 모든 쿼리를 담당할 쿼리 러너를 생성한다.
-    const qr = this.dataSource.createQueryRunner();
+    const post = await this.postsService.createPost(user.id, body, qr);
 
-    // 쿼리러너에 연결한다
-    await qr.connect();
-    // 쿼리 러너에서 트랜젝션 시작
-    // 이 시점부터 같은 쿼리 러너를 사용하면
-    // 트랜젝션 안에서 데이터베이스 액션을 실행 할 수 있다.
-    await qr.startTransaction();
-
-    // 실행하고 싶은 로직 실행
-    try {
-      const post = await this.postsService.createPost(user.id, body, qr);
-
-      for (let i = 0; i < body.images.length; i++) {
-        await this.postsImagesService.createPostImage(
-          {
-            post,
-            order: i,
-            path: body.images[i],
-            type: ImageModelType.POST_IMAGE,
-          },
-          qr,
-        );
-      }
-
-      await qr.commitTransaction();
-      await qr.release();
-
-      return this.postsService.getPostById(post.id);
-    } catch {
-      // 어떤 에러든 발생하면 트랜젝션 종료하고 원래상태로 되돌린다
-      await qr.rollbackTransaction();
-      await qr.release();
-
-      throw new InternalServerErrorException('에러가 발생했습니다.');
+    for (let i = 0; i < body.images.length; i++) {
+      await this.postsImagesService.createPostImage(
+        {
+          post,
+          order: i,
+          path: body.images[i],
+          type: ImageModelType.POST_IMAGE,
+        },
+        qr,
+      );
     }
+
+    return this.postsService.getPostById(post.id, qr);
   }
   // PATCH /posts/:id
   // 해당되는 id의 포스트를 변경한다
