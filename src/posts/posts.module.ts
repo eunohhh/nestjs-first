@@ -2,8 +2,10 @@ import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthModule } from 'src/auth/auth.module';
 import { CommonModule } from 'src/common/common.module';
+import { ImageModel } from 'src/common/entities/image.entity';
 import { UsersModule } from 'src/users/users.module';
 import { PostsModel } from './entities/posts.entity';
+import { PostsImagesService } from './image/images.service';
 import { PostsController } from './posts.controller';
 import { PostsService } from './posts.service';
 
@@ -11,12 +13,12 @@ import { PostsService } from './posts.service';
 // 상호 resource 간 참조시 아래 import 에 모듈 임포트를 했는지 확인할 것
 @Module({
   imports: [
-    TypeOrmModule.forFeature([PostsModel]),
+    TypeOrmModule.forFeature([PostsModel, ImageModel]),
     AuthModule,
     UsersModule,
     CommonModule,
   ],
   controllers: [PostsController],
-  providers: [PostsService],
+  providers: [PostsService, PostsImagesService],
 })
 export class PostsModule {}
