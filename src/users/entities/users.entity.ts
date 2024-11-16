@@ -1,10 +1,12 @@
 import { Exclude } from 'class-transformer';
 import { IsEmail, IsString, Length } from 'class-validator';
+import { ChatsModel } from 'src/chats/entities/chats.entity';
+import { MessagesModel } from 'src/chats/messages/entity/messages.entity';
 import { BaseModel } from 'src/common/entities/base.entity';
 import { lengthValidationMessage } from 'src/common/validation-message/length-validation.message';
 import { stringValidationMessage } from 'src/common/validation-message/string-validation.message';
 import { PostsModel } from 'src/posts/entities/posts.entity';
-import { Column, Entity, OneToMany } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { RolesEnum } from '../const/roles.const';
 
 @Entity()
@@ -36,9 +38,10 @@ export class UsersModel extends BaseModel {
   @IsString({
     message: stringValidationMessage,
   })
-  @IsEmail(null, {
-    message: stringValidationMessage,
-  })
+  // @IsEmail(null, {
+  //   message: stringValidationMessage,
+  // })
+  @IsEmail()
   // 유일무이한 값이 될 것
   email: string;
 
@@ -71,4 +74,11 @@ export class UsersModel extends BaseModel {
 
   @OneToMany(() => PostsModel, (post) => post.author)
   posts: PostsModel[];
+
+  @ManyToMany(() => ChatsModel, (chat) => chat.users)
+  @JoinTable()
+  chats: ChatsModel[];
+
+  @OneToMany(() => MessagesModel, (message) => message.author)
+  messages: MessagesModel;
 }
