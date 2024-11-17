@@ -6,7 +6,7 @@ import {
   ENV_JWT_HASH_ROUNDS,
   ENV_JWT_SECRET_KEY,
 } from 'src/common/const/env-keys.const';
-import { UsersModel } from 'src/users/entities/users.entity';
+import { UsersModel } from 'src/users/entity/users.entity';
 import { UsersService } from 'src/users/users.service';
 import { RegisterUserDto } from './dto/register-user.dto';
 

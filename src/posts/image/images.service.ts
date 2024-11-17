@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { promises } from 'fs';
 import { basename, join } from 'path';
 import { POST_IMAGE_PATH, TEMP_FOLDER_PATH } from 'src/common/const/path.const';
-import { ImageModel } from 'src/common/entities/image.entity';
+import { ImageModel } from 'src/common/entity/image.entity';
 import { QueryRunner, Repository } from 'typeorm';
 import { CreatePostImageDto } from './dto/create-image.dto';
 

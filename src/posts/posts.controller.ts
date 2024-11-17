@@ -14,12 +14,12 @@ import {
 } from '@nestjs/common';
 import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
-import { ImageModelType } from 'src/common/entities/image.entity';
+import { ImageModelType } from 'src/common/entity/image.entity';
 import { HttpExceptionFilter } from 'src/common/exception-filter/http.exception-filter';
 import { LogInterceptor } from 'src/common/interceptor/log.interceptor';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
 import { User } from 'src/users/decorators/user.decorator';
-import { UsersModel } from 'src/users/entities/users.entity';
+import { UsersModel } from 'src/users/entity/users.entity';
 import { DataSource, QueryRunner as QR } from 'typeorm';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PaginatePostDto } from './dto/paginate-post.dto';

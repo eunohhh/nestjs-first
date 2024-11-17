@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ENV_HOST, ENV_PROTOCOL } from 'src/common/const/env-keys.const';
-import { ImageModel } from 'src/common/entities/image.entity';
+import { ImageModel } from 'src/common/entity/image.entity';
 import {
   FindOptionsWhere,
   LessThan,
@@ -15,7 +15,7 @@ import { DEFAULT_POST_FIND_OPTIONS } from './const/default-post-find-options.con
 import { CreatePostDto } from './dto/create-post.dto';
 import { PaginatePostDto } from './dto/paginate-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { PostsModel } from './entities/posts.entity';
+import { PostsModel } from './entity/posts.entity';
 
 @Injectable()
 export class PostsService {
@@ -155,7 +155,7 @@ export class PostsService {
   }
 
   async getPostById(id: number, qr?: QueryRunner) {
-    const repository = this.getRepositroy(qr);
+    const repository = this.getRepository(qr);
     const post = await repository.findOne({
       ...DEFAULT_POST_FIND_OPTIONS,
       where: {
@@ -166,14 +166,38 @@ export class PostsService {
     return post;
   }
 
-  getRepositroy(qr?: QueryRunner) {
+  getRepository(qr?: QueryRunner) {
     return qr
       ? qr.manager.getRepository<PostsModel>(PostsModel)
       : this.postsRepository;
   }
 
+  async incrementCommentCount(postId: number, qr?: QueryRunner) {
+    const repository = this.getRepository(qr);
+
+    await repository.increment(
+      {
+        id: postId,
+      },
+      'commentCount',
+      1,
+    );
+  }
+
+  async decrementCommentCount(postId: number, qr?: QueryRunner) {
+    const repository = this.getRepository(qr);
+
+    await repository.decrement(
+      {
+        id: postId,
+      },
+      'commentCount',
+      1,
+    );
+  }
+
   async createPost(authorId: number, postDto: CreatePostDto, qr?: QueryRunner) {
-    const repository = this.getRepositroy(qr);
+    const repository = this.getRepository(qr);
     // create -> 저장할 객체를 생성한다
     // save -> 객체를 저장한다(create 메서드에서 생성한 객체로)
     const post = repository.create({
@@ -221,5 +245,27 @@ export class PostsService {
 
     await this.postsRepository.delete(postId);
     return postId;
+  }
+
+  async checkPostExistsById(id: number) {
+    return this.postsRepository.exist({
+      where: {
+        id,
+      },
+    });
+  }
+
+  async isPostMine(userId: number, postId: number) {
+    return this.postsRepository.exist({
+      where: {
+        id: postId,
+        author: {
+          id: userId,
+        },
+      },
+      relations: {
+        author: true,
+      },
+    });
   }
 }

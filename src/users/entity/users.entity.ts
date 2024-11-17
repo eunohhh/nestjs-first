@@ -1,13 +1,15 @@
 import { Exclude } from 'class-transformer';
 import { IsEmail, IsString, Length } from 'class-validator';
-import { ChatsModel } from 'src/chats/entities/chats.entity';
+import { ChatsModel } from 'src/chats/entity/chats.entity';
 import { MessagesModel } from 'src/chats/messages/entity/messages.entity';
-import { BaseModel } from 'src/common/entities/base.entity';
+import { BaseModel } from 'src/common/entity/base.entity';
 import { lengthValidationMessage } from 'src/common/validation-message/length-validation.message';
 import { stringValidationMessage } from 'src/common/validation-message/string-validation.message';
-import { PostsModel } from 'src/posts/entities/posts.entity';
+import { CommentsModel } from 'src/posts/comments/entity/comments.entity';
+import { PostsModel } from 'src/posts/entity/posts.entity';
 import { Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import { RolesEnum } from '../const/roles.const';
+import { UserFollowersModel } from './user-followers.entity';
 
 @Entity()
 // 여기에 Exclude 하고 각 프로퍼티에 Expose 해서 기본으로 막고 노출할 것만 노출할 수도 있음
@@ -84,4 +86,25 @@ export class UsersModel extends BaseModel {
 
   @OneToMany(() => MessagesModel, (message) => message.author)
   messages: MessagesModel;
+
+  @OneToMany(() => CommentsModel, (comment) => comment.author)
+  postComments: CommentsModel[];
+
+  // 내가 팔로우 하고 있는 사람들
+  @OneToMany(() => UserFollowersModel, (ufm) => ufm.follower)
+  followers: UserFollowersModel[];
+
+  // 나를 팔로우 하고 있는 사람들
+  @OneToMany(() => UserFollowersModel, (ufm) => ufm.followee)
+  followees: UserFollowersModel[];
+
+  @Column({
+    default: 0,
+  })
+  followerCount: number;
+
+  @Column({
+    default: 0,
+  })
+  followeeCount: number;
 }

@@ -4,7 +4,7 @@ import { CommonService } from 'src/common/common.service';
 import { Repository } from 'typeorm';
 import { CreateChatDto } from './dto/create-chat.dto';
 import { PaginateChatDto } from './dto/paginate-chat.dto';
-import { ChatsModel } from './entities/chats.entity';
+import { ChatsModel } from './entity/chats.entity';
 
 @Injectable()
 export class ChatsService {
