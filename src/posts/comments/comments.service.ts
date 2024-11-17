@@ -110,7 +110,7 @@ export class CommentsService {
   }
 
   async isCommentMine(userId: number, commentId: number) {
-    return this.commentsRepository.exist({
+    return this.commentsRepository.exists({
       where: {
         id: commentId,
         author: {
