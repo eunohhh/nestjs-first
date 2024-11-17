@@ -8,16 +8,14 @@ import {
   Patch,
   Post,
   Query,
-  UseFilters,
-  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
-import { AccessTokenGuard } from 'src/auth/guard/bearer-token.guard';
+import { IsPublic } from 'src/common/decorator/is-public.decorator';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { ImageModelType } from 'src/common/entity/image.entity';
-import { HttpExceptionFilter } from 'src/common/exception-filter/http.exception-filter';
-import { LogInterceptor } from 'src/common/interceptor/log.interceptor';
 import { TransactionInterceptor } from 'src/common/interceptor/transaction.interceptor';
+import { RolesEnum } from 'src/users/const/roles.const';
+import { Roles } from 'src/users/decorators/roles.decorator';
 import { User } from 'src/users/decorators/user.decorator';
 import { UsersModel } from 'src/users/entity/users.entity';
 import { DataSource, QueryRunner as QR } from 'typeorm';
@@ -38,14 +36,14 @@ export class PostsController {
   // GET /posts
   // 모든 posts 를 다 가져온다
   @Get()
-  @UseInterceptors(LogInterceptor)
-  @UseFilters(HttpExceptionFilter)
+  @IsPublic()
+  // @UseInterceptors(LogInterceptor)
+  // @UseFilters(HttpExceptionFilter)
   getPosts(@Query() query: PaginatePostDto) {
     return this.postsService.paginatePosts(query);
   }
 
   @Post('random')
-  @UseGuards(AccessTokenGuard)
   async postPostsRandom(@User() user: UsersModel) {
     await this.postsService.generatePosts(user.id);
     return true;
@@ -54,6 +52,7 @@ export class PostsController {
   // GET /posts/:id
   // 해당되는 id의 post를 가져온다
   @Get(':id')
+  @IsPublic()
   getPost(@Param('id', ParseIntPipe) id: number) {
     return this.postsService.getPostById(id);
   }
@@ -62,7 +61,6 @@ export class PostsController {
   // post를 생성한다
   // DTO - data transfer object
   @Post()
-  @UseGuards(AccessTokenGuard)
   @UseInterceptors(TransactionInterceptor)
   async postPosts(
     @User() user: UsersModel,
@@ -98,9 +96,11 @@ export class PostsController {
   ) {
     return this.postsService.updatePost(id, body);
   }
+
   // DELETE /posts/:id
   // 해당되는 id의 포스트를 삭제한다
   @Delete(':id')
+  @Roles(RolesEnum.ADMIN)
   deletePost(@Param('id', ParseIntPipe) id: number) {
     return this.postsService.deletePost(id);
   }
