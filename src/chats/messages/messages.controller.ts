@@ -1,8 +1,10 @@
 import { Controller, Get, Param, ParseIntPipe, Query } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 import { BasePaginationDto } from 'src/common/dto/base-pagination.dto';
 import { ChatsMessagesService } from './messages.service';
 
 @Controller('chats/:cid/messages')
+@ApiBearerAuth()
 export class MessagesController {
   constructor(private readonly messagesService: ChatsMessagesService) {}
 

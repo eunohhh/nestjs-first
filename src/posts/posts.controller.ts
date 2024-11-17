@@ -11,6 +11,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { IsPublic } from 'src/common/decorator/is-public.decorator';
 import { QueryRunner } from 'src/common/decorator/query-runner.decorator';
 import { ImageModelType } from 'src/common/entity/image.entity';
@@ -28,6 +29,8 @@ import { PostsImagesService } from './image/images.service';
 import { PostsService } from './posts.service';
 
 @Controller('posts')
+@ApiBearerAuth()
+@ApiTags('포스트')
 export class PostsController {
   constructor(
     private readonly postsService: PostsService,
@@ -39,6 +42,10 @@ export class PostsController {
   //    모든 post를 다 가져온다.
   @Get()
   @IsPublic()
+  @ApiOperation({
+    summary: '모든 포스트 가져오기',
+    description: '모든 포스트 가져오기',
+  })
   // @UseInterceptors(LogInterceptor)
   getPosts(@Query() query: PaginatePostDto) {
     return this.postsService.paginatePosts(query);

@@ -1,10 +1,28 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from './app.module';
 import { HttpExceptionFilter } from './common/exception-filter/http.exception-filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // swagger
+  const config = new DocumentBuilder()
+    .setTitle('my first nestjs')
+    .setDescription('NestJS 스터디입니다.')
+    .setVersion('1.0')
+    .addBasicAuth()
+    .addBearerAuth()
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('swagger-ui', app, document, {
+    swaggerOptions: {
+      persistAuthorization: true,
+    },
+  });
+
   // 앱 전체에 사용되는 밸리데이터들이 실행되도록 하는 파이프
   app.useGlobalPipes(
     new ValidationPipe({
